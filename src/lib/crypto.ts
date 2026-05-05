@@ -50,7 +50,7 @@ async function deriveWrappingKey(
     },
     keyMaterial,
     {
-      name: "AES-KW",
+      name: "AES-GCM",
       length: 256,
     },
     false,
@@ -91,14 +91,22 @@ export async function wrapPrivateKey(
   saltBase64: string,
 ): Promise<string> {
   const wrappingKey = await deriveWrappingKey(password, saltBase64);
+  const iv = crypto.getRandomValues(
+    new Uint8Array(CRYPTO_CONFIG.AES_IV_LENGTH),
+  );
   const wrappedBuffer = await crypto.subtle.wrapKey(
     "pkcs8",
     privateKey,
     wrappingKey,
-    "AES-GCM",
+    { name: "AES-GCM", iv },
   );
 
-  return bufferToBase64(wrappedBuffer);
+  const wrappedBytes = new Uint8Array(wrappedBuffer);
+  const combined = new Uint8Array(iv.length + wrappedBytes.length);
+  combined.set(iv, 0);
+  combined.set(wrappedBytes, iv.length);
+
+  return bufferToBase64(combined.buffer);
 }
 
 export async function unwrapPrivateKey(
@@ -107,13 +115,15 @@ export async function unwrapPrivateKey(
   saltBase64: string,
 ): Promise<CryptoKey> {
   const wrappingKey = await deriveWrappingKey(password, saltBase64);
-  const wrappedKeyBuffer = base64ToBuffer(wrappedPrivateKeyBase64);
+  const combined = new Uint8Array(base64ToBuffer(wrappedPrivateKeyBase64));
+  const iv = combined.slice(0, CRYPTO_CONFIG.AES_IV_LENGTH);
+  const wrappedKeyBuffer = combined.slice(CRYPTO_CONFIG.AES_IV_LENGTH).buffer;
 
   return crypto.subtle.unwrapKey(
     "pkcs8",
     wrappedKeyBuffer,
     wrappingKey,
-    "AES-KW",
+    { name: "AES-GCM", iv },
     {
       name: "RSA-OAEP",
       hash: CRYPTO_CONFIG.RSA_HASH,
