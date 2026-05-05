@@ -51,7 +51,7 @@ async function deriveWrappingKey(
     keyMaterial,
     {
       name: "AES-KW",
-      length: CRYPTO_CONFIG.AES_KEY_LENGTH,
+      length: 256,
     },
     false,
     ["wrapKey", "unwrapKey"],
@@ -95,7 +95,7 @@ export async function wrapPrivateKey(
     "pkcs8",
     privateKey,
     wrappingKey,
-    "AES-KW",
+    "AES-GCM",
   );
 
   return bufferToBase64(wrappedBuffer);
