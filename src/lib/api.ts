@@ -178,7 +178,7 @@ export async function sendMessage(
   return request<MessageResponse>(ENDPOINTS.SEND_MESSAGE, {
     method: "POST",
     body: JSON.stringify({
-      to_user_id: toUserId,
+      to: toUserId,
       payload,
     }),
   });
