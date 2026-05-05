@@ -37,7 +37,7 @@ export default function MessageBubble({
   const colors = getAvatarColor(senderName || '')
 
   return (
-    <div className={`flex flex-col gap-1 ${isSent ? 'items-end' : 'items-start'}`}>
+    <div className="flex flex-col gap-1 w-full">
 
       {/* sender name + avatar for received messages */}
       {!isSent && senderName && (
@@ -48,7 +48,7 @@ export default function MessageBubble({
         </div>
       )}
 
-      <div className={`flex items-end gap-2 ${isSent ? 'flex-row-reverse' : 'flex-row'}`}>
+      <div className={`flex items-end gap-2 w-full ${isSent ? 'flex-row-reverse' : 'flex-row'}`}>
 
         {/* avatar for received messages */}
         {!isSent && (

@@ -25,6 +25,8 @@ export default function RegisterForm() {
     e.preventDefault()
     setError(null)
 
+    const normalizedUsername = username.trim().toLowerCase()
+
     if (password !== confirmPassword) {
       setError('Passwords do not match')
       return
@@ -33,7 +35,7 @@ export default function RegisterForm() {
       setError('Password must be at least 8 characters')
       return
     }
-    if (username.length < 3) {
+    if (normalizedUsername.length < 3) {
       setError('Username must be at least 3 characters')
       return
     }
@@ -56,7 +58,7 @@ export default function RegisterForm() {
 
       setLoadingStep('Creating your account...')
       const session = await register({
-        username,
+        username: normalizedUsername,
         display_name: displayName,
         password,
         public_key: publicKeyBase64,

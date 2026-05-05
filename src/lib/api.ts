@@ -18,12 +18,15 @@ async function request<T>(
   const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
   const url = `${API_BASE_URL}${endpoint}`;
 
+  const isPublicAuthEndpoint =
+    endpoint === ENDPOINTS.LOGIN || endpoint === ENDPOINTS.REGISTER;
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
   };
 
-  if (accessToken) {
+  if (accessToken && !isPublicAuthEndpoint) {
     headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
@@ -71,7 +74,9 @@ async function request<T>(
 export function saveSession(session: Session): void {
   localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, session.access_token);
   localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, session.refresh_token);
-  localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(session.user));
+  if (session.user) {
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(session.user));
+  }
 }
 
 export function clearSession(): void {
@@ -82,8 +87,13 @@ export function clearSession(): void {
 
 export function getStoredUser(): User | null {
   const userJson = localStorage.getItem(STORAGE_KEYS.USER);
-  if (!userJson) return null;
-  return JSON.parse(userJson) as User;
+  if (!userJson || userJson === "undefined" || userJson === "null") return null;
+  try {
+    return JSON.parse(userJson) as User;
+  } catch {
+    localStorage.removeItem(STORAGE_KEYS.USER);
+    return null;
+  }
 }
 
 export function getAccessToken(): string | null {

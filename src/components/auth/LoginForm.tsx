@@ -26,7 +26,10 @@ export default function LoginForm() {
 
     try {
       setLoadingStep('Signing in...')
-      const session = await login({ username, password })
+      const session = await login({
+        username: username.trim().toLowerCase(),
+        password,
+      })
 
       setLoadingStep('Decrypting your keys...')
       const privateKey = await unwrapPrivateKey(
