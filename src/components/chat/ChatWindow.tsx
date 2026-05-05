@@ -1,20 +1,18 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { LuChevronLeft, LuLock, LuEllipsis } from 'react-icons/lu'
 import { useAuth } from '../../context/AuthContext'
 import { getMessageHistory, getUserPublicKey, sendMessage } from '../../lib/api'
 import { getPrivateKey } from '../../lib/storage'
 import { encryptMessage, decryptMessage } from '../../lib/crypto'
 import type { MessageResponse, DecryptedMessage } from '../../types/message'
-import type { User } from '../../types/auth'
 import MessageBubble from './MessageBubble'
 import MessageInput from './MessageInput'
 
 type Props = {
   recipientId: string
-  recipientUser?: User
+  recipientName?: string
   onBack?: () => void
 }
 
@@ -42,16 +40,13 @@ function formatDate(dateStr: string): string {
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
 }
 
-export default function ChatWindow({ recipientId, recipientUser, onBack }: Props) {
-  const router = useRouter()
+export default function ChatWindow({ recipientId, recipientName: nameFromProps, onBack }: Props) {
   const { user } = useAuth()
+  const recipientName = nameFromProps || 'Loading...'
 
   const [messages, setMessages] = useState<DecryptedMessage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [recipientName, setRecipientName] = useState(
-    recipientUser?.display_name || 'Loading...'
-  )
   const [recipientPublicKey, setRecipientPublicKey] = useState<string | null>(null)
 
   // ref to scroll to bottom of messages
@@ -121,7 +116,10 @@ export default function ChatWindow({ recipientId, recipientUser, onBack }: Props
 
         // get recipient public key and message history in parallel
         const [history, pubKey] = await Promise.all([
-          getMessageHistory(recipientId),
+          getMessageHistory(recipientId).catch((err): MessageResponse[] => {
+            if (err instanceof Error && /not found/i.test(err.message)) return []
+            throw err
+          }),
           getUserPublicKey(recipientId),
         ])
 

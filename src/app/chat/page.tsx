@@ -4,10 +4,10 @@ import { useState } from 'react'
 import ProtectedRoute from '../../components/shared/ProtectedRoute'
 import ConversationList from '../../components/chat/ConversationList'
 import ChatWindow from '../../components/chat/ChatWindow'
+import type { ConversationSummary } from '../../types/message'
 
 export default function ChatPage() {
-  // selected conversation — only used on desktop split view
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+  const [selectedConv, setSelectedConv] = useState<ConversationSummary | null>(null)
 
   return (
     <ProtectedRoute>
@@ -18,7 +18,7 @@ export default function ChatPage() {
           className={`
             flex-shrink-0 flex flex-col border-r
             w-full md:w-[280px] lg:w-[300px]
-            ${selectedUserId ? 'hidden md:flex' : 'flex'}
+            ${selectedConv ? 'hidden md:flex' : 'flex'}
           `}
           style={{
             borderColor: 'var(--color-border-tertiary)',
@@ -26,8 +26,8 @@ export default function ChatPage() {
           }}
         >
           <ConversationList
-            activeUserId={selectedUserId || undefined}
-            onSelectConversation={setSelectedUserId}
+            activeUserId={selectedConv?.user_id}
+            onSelectConversation={setSelectedConv}
           />
         </div>
 
@@ -35,13 +35,14 @@ export default function ChatPage() {
         <div
           className={`
             flex-1 flex flex-col
-            ${selectedUserId ? 'flex' : 'hidden md:flex'}
+            ${selectedConv ? 'flex' : 'hidden md:flex'}
           `}
         >
-          {selectedUserId ? (
+          {selectedConv ? (
             <ChatWindow
-              recipientId={selectedUserId}
-              onBack={() => setSelectedUserId(null)}
+              recipientId={selectedConv.user_id}
+              recipientName={selectedConv.display_name}
+              onBack={() => setSelectedConv(null)}
             />
           ) : (
             /* empty state — desktop only */

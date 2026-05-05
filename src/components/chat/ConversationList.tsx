@@ -11,7 +11,7 @@ import NewConversationModal from './NewConversationModal'
 
 type Props = {
   activeUserId?: string
-  onSelectConversation?: (userId: string) => void
+  onSelectConversation?: (conv: ConversationSummary) => void
 }
 
 // generates initials from display name
@@ -100,22 +100,20 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
   function handleNewConversation(selectedUser: User) {
     setShowNewConv(false)
 
-    // check if conversation already exists
     const existing = conversations.find(c => c.user_id === selectedUser.id)
-    if (!existing) {
-      // add a temporary entry to the list
-      const newConv: ConversationSummary = {
-        user_id: selectedUser.id,
-        display_name: selectedUser.display_name,
-        username: selectedUser.username,
-        last_message_at: new Date().toISOString(),
-      }
-      setConversations(prev => [newConv, ...prev])
+    const conv: ConversationSummary = existing || {
+      user_id: selectedUser.id,
+      display_name: selectedUser.display_name,
+      username: selectedUser.username,
+      last_message_at: new Date().toISOString(),
     }
 
-    // navigate to the chat
+    if (!existing) {
+      setConversations(prev => [conv, ...prev])
+    }
+
     if (onSelectConversation) {
-      onSelectConversation(selectedUser.id)
+      onSelectConversation(conv)
     } else {
       router.push(`/chat/${selectedUser.id}`)
     }
@@ -238,7 +236,7 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
                 key={conv.user_id}
                 onClick={() => {
                   if (onSelectConversation) {
-                    onSelectConversation(conv.user_id)
+                    onSelectConversation(conv)
                   } else {
                     router.push(`/chat/${conv.user_id}`)
                   }
