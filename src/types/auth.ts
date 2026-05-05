@@ -1,6 +1,6 @@
 export type User = {
   id: string;
-  usernmae: string;
+  username: string;
   display_name: string;
   public_key: string;
   wrapped_private_key: string;
