@@ -5,10 +5,10 @@ export const ENDPOINTS = {
   REGISTER: "/auth/register",
 
   //Login to existing account
-  LOGIN: "auth/login",
+  LOGIN: "/auth/login",
 
   //Get the currently logged in user's profile
-  ME: "auth/me",
+  ME: "/auth/me",
 
   //Get a new access token using the refresh token
   REFRESH: "/auth/refresh",
