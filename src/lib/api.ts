@@ -49,9 +49,20 @@ async function request<T>(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(
-      errorData.detail || errorData.message || `HTTP error ${response.status}`,
-    );
+    const detail = errorData.detail;
+    let message: string;
+    if (typeof detail === "string") {
+      message = detail;
+    } else if (Array.isArray(detail)) {
+      message = detail
+        .map((e) => `${e.loc?.join(".") ?? ""}: ${e.msg ?? JSON.stringify(e)}`)
+        .join("; ");
+    } else if (detail) {
+      message = JSON.stringify(detail);
+    } else {
+      message = errorData.message || `HTTP error ${response.status}`;
+    }
+    throw new Error(message);
   }
 
   return response.json() as Promise<T>;
