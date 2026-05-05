@@ -23,6 +23,10 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: #F5F4F0;
 }
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
 
 input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 30px #fafaf8 inset !important;

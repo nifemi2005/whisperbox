@@ -22,11 +22,11 @@ export const ENDPOINTS = {
   //Get a user public key
   GET_PUBLIC_KEY: (userId: string) => `/users/${userId}/public-key`,
 
-  CONVERSATIONS: "/messages/conversations",
+  CONVERSATIONS: "/conversations",
 
-  HISTORY: (userId: string) => `/messages/history/${userId}`,
+  HISTORY: (userId: string) => `/conversations/${userId}/messages`,
 
-  SEND_MESSAGE: "/messages/send",
+  SEND_MESSAGE: "/messages",
 
   HEALTH: "/health",
 } as const;
