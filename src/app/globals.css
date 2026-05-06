@@ -3,6 +3,18 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* surfaces */
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #fafaf8;
+
+  /* borders */
+  --color-border-tertiary: #e0ddd8;
+
+  /* text */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
 }
 
 @theme inline {
