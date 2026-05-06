@@ -63,6 +63,8 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [showNewConv, setShowNewConv] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
 
   // load conversations on mount
   useEffect(() => {
@@ -119,9 +121,15 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
     }
   }
 
-  async function handleLogout() {
-    await logout()
-    router.push('/login')
+  async function confirmLogout() {
+    setLoggingOut(true)
+    try {
+      await logout()
+      router.push('/login')
+    } finally {
+      setLoggingOut(false)
+      setShowLogoutConfirm(false)
+    }
   }
 
   return (
@@ -329,7 +337,7 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
 
           {/* logout button */}
           <button
-            onClick={handleLogout}
+            onClick={() => setShowLogoutConfirm(true)}
             className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
             style={{
               background: 'var(--color-background-secondary)',
@@ -349,6 +357,61 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
           onClose={() => setShowNewConv(false)}
           onSelect={handleNewConversation}
         />
+      )}
+
+      {/* logout confirmation modal */}
+      {showLogoutConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          style={{ background: 'rgba(0,0,0,0.4)' }}
+          onClick={() => !loggingOut && setShowLogoutConfirm(false)}
+        >
+          <div
+            className="w-full max-w-xs rounded-2xl bg-white p-5 flex flex-col gap-4"
+            style={{ border: '1px solid #e0ddd8' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: '#FCEBEB' }}
+              >
+                <LuLogOut size={16} color="#A32D2D" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-[13px] font-semibold" style={{ color: '#111827' }}>
+                  Log out?
+                </h3>
+                <p className="text-[11px] leading-relaxed" style={{ color: '#6b7280' }}>
+                  You&apos;ll need to sign in again to read your messages.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                disabled={loggingOut}
+                className="flex-1 rounded-lg py-2 text-[12px] font-medium transition-colors disabled:opacity-50"
+                style={{
+                  background: '#fafaf8',
+                  border: '1px solid #e0ddd8',
+                  color: '#374151',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                disabled={loggingOut}
+                className="flex-1 rounded-lg py-2 text-[12px] font-medium text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{ background: '#A32D2D' }}
+              >
+                {loggingOut ? 'Logging out...' : 'Log out'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   )

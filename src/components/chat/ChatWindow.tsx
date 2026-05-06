@@ -13,6 +13,7 @@ import MessageInput from './MessageInput'
 type Props = {
   recipientId: string
   recipientName?: string
+  recipientUsername?: string
   onBack?: () => void
 }
 
@@ -20,15 +21,15 @@ function getInitials(name: string): string {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 }
 
-function getAvatarColor(name: string): { bg: string; color: string } {
-  const colors = [
-    { bg: '#E6F1FB', color: '#0C447C' },
-    { bg: '#FAEEDA', color: '#633806' },
-    { bg: '#E1F5EE', color: '#085041' },
-    { bg: '#EEEDFE', color: '#3C3489' },
+function getAvatarColor(name: string): { bg: string; color: string; ring: string } {
+  const palettes = [
+    { bg: '#E6F1FB', color: '#0C447C', ring: '#7FB1E0' },
+    { bg: '#FAEEDA', color: '#633806', ring: '#E0B968' },
+    { bg: '#E1F5EE', color: '#085041', ring: '#5DCAA5' },
+    { bg: '#EEEDFE', color: '#3C3489', ring: '#A39ED9' },
   ]
-  const index = name.charCodeAt(0) % colors.length
-  return colors[index]
+  const index = (name?.charCodeAt(0) || 0) % palettes.length
+  return palettes[index]
 }
 
 function formatDate(dateStr: string): string {
@@ -40,7 +41,7 @@ function formatDate(dateStr: string): string {
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
 }
 
-export default function ChatWindow({ recipientId, recipientName: nameFromProps, onBack }: Props) {
+export default function ChatWindow({ recipientId, recipientName: nameFromProps, recipientUsername, onBack }: Props) {
   const { user } = useAuth()
   const recipientName = nameFromProps || 'Loading...'
 
@@ -212,27 +213,31 @@ export default function ChatWindow({ recipientId, recipientName: nameFromProps, 
             className="flex-shrink-0 md:hidden"
             aria-label="Go back"
           >
-            <LuChevronLeft size={22} color="var(--color-text-primary)" />
+            <LuChevronLeft size={22} color="#111827" />
           </button>
         )}
 
-        {/* recipient avatar */}
+        {/* recipient avatar with green ring */}
         <div
-          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-[12px] font-medium"
-          style={{ background: avatarColors.bg, color: avatarColors.color }}
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-[12px] font-semibold"
+          style={{
+            background: avatarColors.bg,
+            color: avatarColors.color,
+            border: `2px solid ${avatarColors.ring}`,
+          }}
         >
           {getInitials(recipientName)}
         </div>
 
         {/* recipient info */}
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>
+          <p className="text-[14px] font-semibold truncate" style={{ color: '#111827' }}>
             {recipientName}
           </p>
           <div className="flex items-center gap-1.5">
             <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#1D9E75' }} />
-            <p className="text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
-              Online
+            <p className="text-[11px]" style={{ color: '#6b7280' }}>
+              Online{recipientUsername ? ` · @${recipientUsername}` : ''}
             </p>
           </div>
         </div>
@@ -252,18 +257,25 @@ export default function ChatWindow({ recipientId, recipientName: nameFromProps, 
           <button
             className="w-7 h-7 rounded-lg flex items-center justify-center"
             style={{
-              background: 'var(--color-background-secondary)',
-              border: '0.5px solid var(--color-border-tertiary)',
+              background: '#fafaf8',
+              border: '1px solid #e0ddd8',
             }}
             aria-label="More options"
           >
-            <LuEllipsis size={14} color="var(--color-text-secondary)" />
+            <LuEllipsis size={14} color="#6b7280" />
           </button>
         </div>
       </div>
 
       {/* messages area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+      <div
+        className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3"
+        style={{
+          backgroundColor: '#F5F4F0',
+          backgroundImage: 'radial-gradient(rgba(29,158,117,0.08) 1px, transparent 1px)',
+          backgroundSize: '18px 18px',
+        }}
+      >
 
         {loading && (
           <div className="flex justify-center py-8">
@@ -291,10 +303,10 @@ export default function ChatWindow({ recipientId, recipientName: nameFromProps, 
             >
               <LuLock size={20} color="#1D9E75" />
             </div>
-            <p className="text-[12px] font-medium" style={{ color: 'var(--color-text-primary)' }}>
+            <p className="text-[12px] font-medium" style={{ color: '#111827' }}>
               No messages yet
             </p>
-            <p className="text-[11px] text-center" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="text-[11px] text-center" style={{ color: '#6b7280' }}>
               Your messages are end-to-end encrypted.<br />Only you and {recipientName} can read them.
             </p>
           </div>
@@ -304,18 +316,18 @@ export default function ChatWindow({ recipientId, recipientName: nameFromProps, 
           <div key={msg.id}>
             {showDivider && (
               <div className="flex items-center gap-3 my-3">
-                <div className="flex-1 h-px" style={{ background: 'var(--color-border-tertiary)' }} />
+                <div className="flex-1 h-px" style={{ background: '#d4d0c8' }} />
                 <div
-                  className="text-[9px] px-3 py-1 rounded-full flex-shrink-0"
+                  className="text-[10px] px-3 py-1 rounded-full flex-shrink-0"
                   style={{
-                    background: 'var(--color-background-primary)',
-                    border: '0.5px solid var(--color-border-tertiary)',
-                    color: 'var(--color-text-tertiary)',
+                    background: '#ffffff',
+                    border: '1px solid #e0ddd8',
+                    color: '#6b7280',
                   }}
                 >
                   {formatDate(msg.created_at)}
                 </div>
-                <div className="flex-1 h-px" style={{ background: 'var(--color-border-tertiary)' }} />
+                <div className="flex-1 h-px" style={{ background: '#d4d0c8' }} />
               </div>
             )}
             <MessageBubble

@@ -21,8 +21,8 @@ export default function ChatPage() {
             ${selectedConv ? 'hidden md:flex' : 'flex'}
           `}
           style={{
-            borderColor: 'var(--color-border-tertiary)',
-            background: 'var(--color-background-primary)',
+            borderColor: '#e0ddd8',
+            background: '#ffffff',
           }}
         >
           <ConversationList
@@ -42,6 +42,7 @@ export default function ChatPage() {
             <ChatWindow
               recipientId={selectedConv.user_id}
               recipientName={selectedConv.display_name}
+              recipientUsername={selectedConv.username}
               onBack={() => setSelectedConv(null)}
             />
           ) : (
@@ -57,10 +58,10 @@ export default function ChatPage() {
                   <circle cx="14" cy="19" r="2" fill="#1D9E75"/>
                 </svg>
               </div>
-              <p className="text-[14px] font-medium" style={{ color: 'var(--color-text-primary)' }}>
+              <p className="text-[14px] font-medium" style={{ color: '#111827' }}>
                 Your messages are private
               </p>
-              <p className="text-[12px] text-center max-w-xs" style={{ color: 'var(--color-text-secondary)' }}>
+              <p className="text-[12px] text-center max-w-xs" style={{ color: '#6b7280' }}>
                 Select a conversation or start a new one. All messages are end-to-end encrypted.
               </p>
             </div>

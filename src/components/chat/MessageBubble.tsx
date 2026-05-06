@@ -1,4 +1,4 @@
-import { LuLock, LuCheck, LuCheckCheck } from 'react-icons/lu'
+import { LuCheck, LuCheckCheck } from 'react-icons/lu'
 import type { DecryptedMessage } from '../../types/message'
 
 type Props = {
@@ -8,15 +8,15 @@ type Props = {
   senderInitials?: string
 }
 
-function getAvatarColor(name: string): { bg: string; color: string } {
-  const colors = [
-    { bg: '#E6F1FB', color: '#0C447C' },
-    { bg: '#FAEEDA', color: '#633806' },
-    { bg: '#E1F5EE', color: '#085041' },
-    { bg: '#EEEDFE', color: '#3C3489' },
+function getAvatarColor(name: string): { bg: string; color: string; ring: string } {
+  const palettes = [
+    { bg: '#E6F1FB', color: '#0C447C', ring: '#7FB1E0' },
+    { bg: '#FAEEDA', color: '#633806', ring: '#E0B968' },
+    { bg: '#E1F5EE', color: '#085041', ring: '#5DCAA5' },
+    { bg: '#EEEDFE', color: '#3C3489', ring: '#A39ED9' },
   ]
-  const index = (name?.charCodeAt(0) || 0) % colors.length
-  return colors[index]
+  const index = (name?.charCodeAt(0) || 0) % palettes.length
+  return palettes[index]
 }
 
 function formatTime(dateStr: string): string {
@@ -32,85 +32,57 @@ export default function MessageBubble({
   senderName,
   senderInitials,
 }: Props) {
-  // is this message sent by the current user?
   const isSent = message.from_user_id === currentUserId
   const colors = getAvatarColor(senderName || '')
 
   return (
-    <div className="flex flex-col gap-1 w-full">
+    <div className={`flex flex-col w-full gap-1 ${isSent ? 'items-end' : 'items-start'}`}>
 
-      {/* sender name + avatar for received messages */}
+      {/* sender row — avatar + name above the bubble (received only) */}
       {!isSent && senderName && (
-        <div className="flex items-center gap-1.5 ml-8">
-          <span className="text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
+        <div className="flex items-center gap-2">
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-semibold"
+            style={{
+              background: colors.bg,
+              color: colors.color,
+              border: `1.5px solid ${colors.ring}`,
+            }}
+          >
+            {senderInitials || '?'}
+          </div>
+          <span className="text-[12px] font-medium" style={{ color: '#1f2937' }}>
             {senderName}
           </span>
         </div>
       )}
 
-      <div className={`flex items-end gap-2 w-full ${isSent ? 'flex-row-reverse' : 'flex-row'}`}>
+      {/* bubble — indented past avatar for received messages so it aligns with name */}
+      <div
+        className={`rounded-2xl px-4 py-2.5 max-w-[78%] md:max-w-[65%] ${!isSent && senderName ? 'ml-9' : ''}`}
+        style={{
+          background: isSent ? '#1D9E75' : '#ffffff',
+          color: isSent ? '#ffffff' : '#1f2937',
+          border: isSent ? 'none' : '1px solid #e5e7eb',
+          boxShadow: isSent ? '0 1px 2px rgba(13,45,42,0.08)' : '0 1px 2px rgba(0,0,0,0.04)',
+          wordBreak: 'break-word',
+        }}
+      >
+        <p className="text-[13px] leading-relaxed whitespace-pre-wrap">
+          {message.text}
+        </p>
+      </div>
 
-        {/* avatar for received messages */}
-        {!isSent && (
-          <div
-            className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-medium"
-            style={{ background: colors.bg, color: colors.color }}
-          >
-            {senderInitials || '?'}
-          </div>
+      {/* meta row — green dot + encrypted + time + tick, BELOW the bubble */}
+      <div className={`flex items-center gap-1.5 text-[10px] ${!isSent && senderName ? 'ml-9' : ''}`}>
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#1D9E75' }} />
+        <span style={{ color: '#9ca3af' }}>encrypted</span>
+        <span style={{ color: '#9ca3af' }}>{formatTime(message.created_at)}</span>
+        {isSent && (
+          message.delivered
+            ? <LuCheckCheck size={12} color="#1D9E75" />
+            : <LuCheck size={12} color="#9ca3af" />
         )}
-
-        {/* message bubble */}
-        <div
-          className="max-w-[75%] md:max-w-[65%] rounded-2xl px-3 py-2.5 word-break"
-          style={{
-            background: isSent ? '#1D9E75' : 'var(--color-background-primary)',
-            border: isSent ? 'none' : '0.5px solid var(--color-border-tertiary)',
-            borderBottomRightRadius: isSent ? 4 : 16,
-            borderBottomLeftRadius: isSent ? 16 : 4,
-            wordBreak: 'break-word',
-          }}
-        >
-          {/* message text */}
-          <p
-            className="text-[12px] leading-relaxed"
-            style={{ color: isSent ? '#fff' : 'var(--color-text-primary)' }}
-          >
-            {message.text}
-          </p>
-
-          {/* message footer — time + encrypted indicator + tick */}
-          <div className="flex items-center justify-end gap-1.5 mt-1.5">
-            {/* encrypted indicator */}
-            <div className="flex items-center gap-1">
-              <LuLock
-                size={8}
-                color={isSent ? 'rgba(255,255,255,0.5)' : '#1D9E75'}
-              />
-              <span
-                className="text-[9px]"
-                style={{ color: isSent ? 'rgba(255,255,255,0.5)' : '#0F6E56' }}
-              >
-                encrypted
-              </span>
-            </div>
-
-            {/* timestamp */}
-            <span
-              className="text-[9px]"
-              style={{ color: isSent ? 'rgba(255,255,255,0.55)' : 'var(--color-text-tertiary)' }}
-            >
-              {formatTime(message.created_at)}
-            </span>
-
-            {/* delivery tick for sent messages */}
-            {isSent && (
-              message.delivered
-                ? <LuCheckCheck size={11} color="rgba(255,255,255,0.7)" />
-                : <LuCheck size={11} color="rgba(255,255,255,0.5)" />
-            )}
-          </div>
-        </div>
       </div>
     </div>
   )
