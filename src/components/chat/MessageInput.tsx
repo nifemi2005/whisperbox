@@ -86,7 +86,7 @@ export default function MessageInput({ onSend, disabled }: Props) {
       <button
         onClick={handleSend}
         disabled={!text.trim() || sending || disabled}
-        className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:opacity-40"
         style={{ background: '#1D9E75' }}
         aria-label="Send message"
       >

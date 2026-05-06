@@ -162,7 +162,7 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
           {/* new conversation button */}
           <button
             onClick={() => setShowNewConv(true)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80"
             style={{
               background: 'rgba(29,158,117,0.2)',
               border: '1px solid rgba(29,158,117,0.35)',
@@ -249,12 +249,12 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
                     router.push(`/chat/${conv.user_id}`)
                   }
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 text-left transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 text-left cursor-pointer transition-colors"
                 style={{
                   background: isActive ? '#E1F5EE' : 'transparent',
                 }}
                 onMouseEnter={e => {
-                  if (!isActive) e.currentTarget.style.background = 'var(--color-background-secondary)'
+                  if (!isActive) e.currentTarget.style.background = '#f5f3ee'
                 }}
                 onMouseLeave={e => {
                   if (!isActive) e.currentTarget.style.background = 'transparent'
@@ -338,14 +338,16 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
           {/* logout button */}
           <button
             onClick={() => setShowLogoutConfirm(true)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
+            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 cursor-pointer transition-colors"
             style={{
-              background: 'var(--color-background-secondary)',
-              border: '0.5px solid var(--color-border-tertiary)',
+              background: '#fafaf8',
+              border: '1px solid #e0ddd8',
             }}
+            onMouseEnter={e => (e.currentTarget.style.background = '#f0eee8')}
+            onMouseLeave={e => (e.currentTarget.style.background = '#fafaf8')}
             aria-label="Log out"
           >
-            <LuLogOut size={13} color="var(--color-text-secondary)" />
+            <LuLogOut size={13} color="#6b7280" />
           </button>
         </div>
 
