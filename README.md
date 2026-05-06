@@ -6,7 +6,7 @@ A secure, end-to-end encrypted messaging application built with Next.js, TypeScr
 
 ## Live Demo
 
-[https://your-site.netlify.app](https://your-site.netlify.app)
+[https://whisperboxdemo.netlify.app/](https://whisperboxdemo.netlify.app/)
 
 ---
 
@@ -51,29 +51,29 @@ Visit `http://localhost:3000` in your browser.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        CLIENT (Browser)                      │
-│                                                              │
+│                        CLIENT (Browser)                     │
+│                                                             │
 │  ┌──────────────┐    ┌──────────────┐    ┌───────────────┐  │
 │  │   Next.js    │    │  Web Crypto  │    │   IndexedDB   │  │
 │  │   App Router │    │     API      │    │  (Private Key)│  │
 │  │   (React UI) │◄──►│ (Encryption) │    │               │  │
 │  └──────┬───────┘    └──────────────┘    └───────────────┘  │
-│         │                                                     │
-│         │  Only encrypted blobs leave the client             │
-│         │                                                     │
+│         │                                                   │
+│         │  Only encrypted blobs leave the client            │
+│         │                                                   │
 └─────────┼───────────────────────────────────────────────────┘
           │ HTTPS
           ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    WhisperBox API (Server)                    │
-│                                                              │
+│                    WhisperBox API (Server)                  │
+│                                                             │
 │  ┌──────────────┐    ┌──────────────┐    ┌───────────────┐  │
 │  │    Auth      │    │   Messages   │    │     Users     │  │
 │  │  (JWT Tokens)│    │  (Encrypted  │    │  (Public Keys)│  │
 │  │              │    │   Blobs Only)│    │               │  │
 │  └──────────────┘    └──────────────┘    └───────────────┘  │
-│                                                              │
-│           Server NEVER sees plaintext messages               │
+│                                                             │
+│           Server NEVER sees plaintext messages              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
