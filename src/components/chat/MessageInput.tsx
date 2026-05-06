@@ -53,10 +53,10 @@ export default function MessageInput({ onSend, disabled }: Props) {
     >
       {/* input wrapper */}
       <div
-        className="flex items-center gap-2 flex-1 rounded-full px-4 py-2"
+        className="flex items-center gap-2 flex-1 rounded-full px-4 py-2 border transition-colors focus-within:border-[#1D9E75]"
         style={{
-          background: 'var(--color-background-secondary)',
-          border: '0.5px solid var(--color-border-tertiary)',
+          background: '#fafaf8',
+          borderColor: '#e0ddd8',
         }}
       >
         {/* attachment icon */}

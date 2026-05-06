@@ -84,7 +84,7 @@ export default function NewConversationModal({ onClose, onSelect }: Props) {
         </div>
 
         {/* search input */}
-        <div className="p-3" style={{ borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
+        <div className="p-3 bg-white" style={{ borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
           <div
             className="flex items-center gap-2 rounded-xl px-3 py-2"
             style={{
@@ -112,7 +112,7 @@ export default function NewConversationModal({ onClose, onSelect }: Props) {
         </div>
 
         {/* results */}
-        <div className="flex flex-col" style={{ maxHeight: 300, overflowY: 'auto' }}>
+        <div className="flex flex-col bg-white" style={{ maxHeight: 300, overflowY: 'auto' }}>
           {error && (
             <p className="text-[11px] text-center py-4" style={{ color: 'var(--color-text-secondary)' }}>
               {error}

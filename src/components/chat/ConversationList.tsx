@@ -174,7 +174,7 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
             className="flex items-center gap-2 rounded-xl px-3 py-2"
             style={{
               background: 'var(--color-background-secondary)',
-              border: '0.5px solid var(--color-border-tertiary)',
+              border: '0.5px solid grey',
             }}
           >
             <LuSearch size={12} color="var(--color-text-tertiary)" />
