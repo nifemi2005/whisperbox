@@ -82,6 +82,31 @@ export default function ConversationList({ activeUserId, onSelectConversation }:
     load()
   }, [])
 
+  // poll the conversation list every 5s so timestamps + ordering stay fresh
+  // pauses when the tab is hidden, fails silently
+  useEffect(() => {
+    if (loading) return
+
+    let cancelled = false
+
+    async function poll() {
+      if (document.hidden || cancelled) return
+      try {
+        const data = await getConversations()
+        if (cancelled) return
+        setConversations(data)
+      } catch {
+        // silent
+      }
+    }
+
+    const interval = setInterval(poll, 5000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [loading])
+
   // filter conversations when search changes
   useEffect(() => {
     if (!search.trim()) {

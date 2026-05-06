@@ -50,13 +50,42 @@ export default function ChatWindow({ recipientId, recipientName: nameFromProps, 
   const [error, setError] = useState<string | null>(null)
   const [recipientPublicKey, setRecipientPublicKey] = useState<string | null>(null)
 
-  // ref to scroll to bottom of messages
   const bottomRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const prevMessageCountRef = useRef(0)
+  const messagesRef = useRef<DecryptedMessage[]>([])
 
-  // scroll to bottom when messages change
+  // keep ref in sync with state so the polling closure can read fresh data
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    messagesRef.current = messages
   }, [messages])
+
+  // scroll behavior: initial load → instant scroll; new messages → only scroll
+  // if the user was already near the bottom (don't yank them while reading history)
+  useEffect(() => {
+    const container = messagesContainerRef.current
+    const newCount = messages.length
+    const oldCount = prevMessageCountRef.current
+    prevMessageCountRef.current = newCount
+
+    if (!container || newCount === oldCount) return
+
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+    const wasAtBottom = distanceFromBottom < 150
+    const isInitialLoad = oldCount === 0 && newCount > 0
+
+    if (isInitialLoad) {
+      bottomRef.current?.scrollIntoView({ behavior: 'auto' })
+    } else if (wasAtBottom) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages])
+
+  // reset state on chat switch so polling can't see stale data from the prior chat
+  useEffect(() => {
+    setMessages([])
+    prevMessageCountRef.current = 0
+  }, [recipientId])
 
   // decrypt a single message
   const decryptSingleMessage = useCallback(
@@ -146,6 +175,55 @@ export default function ChatWindow({ recipientId, recipientName: nameFromProps, 
 
     load()
   }, [recipientId, user, decryptSingleMessage])
+
+  // poll for new messages every 3s while the chat is open
+  // pauses when the tab is hidden and stops if the initial load failed
+  useEffect(() => {
+    if (!user || loading || error) return
+
+    let cancelled = false
+
+    async function poll() {
+      if (document.hidden || cancelled) return
+
+      try {
+        const privateKey = await getPrivateKey(user!.id)
+        if (!privateKey || cancelled) return
+
+        const history = await getMessageHistory(recipientId).catch((err): MessageResponse[] => {
+          if (err instanceof Error && /not found/i.test(err.message)) return []
+          throw err
+        })
+        if (cancelled) return
+
+        const existingIds = new Set(messagesRef.current.map(m => m.id))
+        const fresh = history.filter(m => !existingIds.has(m.id))
+        if (fresh.length === 0) return
+
+        const decrypted = await Promise.all(
+          fresh.map(msg => decryptSingleMessage(msg, privateKey))
+        )
+        if (cancelled) return
+
+        setMessages(prev => {
+          const ids = new Set(prev.map(m => m.id))
+          const toAdd = decrypted.filter(m => !ids.has(m.id))
+          if (toAdd.length === 0) return prev
+          return [...prev, ...toAdd].sort(
+            (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          )
+        })
+      } catch {
+        // silent — polling failures shouldn't disrupt the UI
+      }
+    }
+
+    const interval = setInterval(poll, 3000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [user, recipientId, loading, error, decryptSingleMessage])
 
   // send a new message
   async function handleSend(text: string) {
@@ -269,6 +347,7 @@ export default function ChatWindow({ recipientId, recipientName: nameFromProps, 
 
       {/* messages area */}
       <div
+        ref={messagesContainerRef}
         className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3"
         style={{
           backgroundColor: '#F5F4F0',
