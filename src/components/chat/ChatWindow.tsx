@@ -199,10 +199,10 @@ export default function ChatWindow({ recipientId, recipientName: nameFromProps, 
 
       {/* chat header */}
       <div
-        className="flex items-center gap-3 px-4 py-3 flex-shrink-0"
+        className="flex items-center gap-3 px-4 py-2 flex-shrink-0"
         style={{
-          background: 'var(--color-background-primary)',
-          borderBottom: '0.5px solid var(--color-border-tertiary)',
+          background: '#ffffff',
+          borderBottom: '1px solid #e0ddd8',
         }}
       >
         {/* back button — shown on mobile */}

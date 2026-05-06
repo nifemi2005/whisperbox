@@ -86,10 +86,10 @@ export default function NewConversationModal({ onClose, onSelect }: Props) {
         {/* search input */}
         <div className="p-3 bg-white" style={{ borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
           <div
-            className="flex items-center gap-2 rounded-xl px-3 py-2"
+            className="flex items-center gap-2 rounded-xl px-3 py-2 border transition-colors focus-within:border-[#1D9E75]"
             style={{
-              background: 'var(--color-background-secondary)',
-              border: '1px solid #1D9E75',
+              background: '#fafaf8',
+              borderColor: '#e0ddd8',
             }}
           >
             <LuSearch size={13} color="#1D9E75" />
